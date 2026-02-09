@@ -16,7 +16,7 @@ export const generateReimaginedRoom = async (
   const prompt = `Reimagine this room in ${style} interior design style. Keep the basic architecture but change furniture, colors, and decor to match the aesthetic. Provide a high-quality, realistic visual update. Return the image as part of the response.`;
 
   const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash-image',
+    model: 'gemini-1.5-flash',
     contents: {
       parts: [
         { inlineData: { data: base64Image.split(',')[1], mimeType: 'image/jpeg' } },
@@ -48,7 +48,7 @@ export const editRoomByChat = async (
   const prompt = `User wants to refine the design: "${userMessage}". Based on this request, update the interior design of the attached room. Maintain the ${style} theme but apply the specific requested changes. Provide both an updated image and a brief explanation of what was changed.`;
 
   const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash-image',
+    model: 'gemini-1.5-flash',
     contents: {
       parts: [
         { inlineData: { data: base64Image.split(',')[1], mimeType: 'image/jpeg' } },
@@ -78,7 +78,7 @@ export const getShoppingLinks = async (
   const prompt = "Identify 3 key furniture or decor items in this design. For each item, find real-world products and their shopping URLs using Google Search. Focus on stores like IKEA, West Elm, Wayfair, or similar.";
 
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: "gemini-1.5-flash",
     contents: {
       parts: [
         { inlineData: { data: base64Image.split(',')[1], mimeType: 'image/jpeg' } },
