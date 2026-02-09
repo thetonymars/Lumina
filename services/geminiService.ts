@@ -24,7 +24,10 @@ export const generateReimaginedRoom = async (
           { text: prompt }
         ]
       }
-    ]
+    ],
+    config: {
+      responseModalities: ['IMAGE'],
+    }
   });
 
   const imageUrl = response.data ? `data:image/png;base64,${response.data}` : '';
@@ -50,7 +53,10 @@ export const editRoomByChat = async (
           { text: prompt }
         ]
       }
-    ]
+    ],
+    config: {
+      responseModalities: ['IMAGE'],
+    }
   });
 
   const imageUrl = response.data ? `data:image/png;base64,${response.data}` : '';
@@ -66,7 +72,7 @@ export const getShoppingLinks = async (
   const prompt = "Identify 3 key furniture or decor items in this design. For each item, find real-world products and their shopping URLs using Google Search. Focus on stores like IKEA, West Elm, Wayfair, or similar.";
 
   const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
+    model: 'gemini-2.0-flash',
     contents: [
       {
         parts: [
