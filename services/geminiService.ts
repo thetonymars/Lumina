@@ -48,7 +48,7 @@ export const generateReimaginedRoom = async (
         {
           type: "image_url",
           image_url: {
-            url: base64Image // base64 string
+            url: base64Image
           }
         }
       ]
@@ -60,10 +60,18 @@ export const generateReimaginedRoom = async (
   let description = output?.content || '';
 
   // Extract base64 image from OpenRouter's specific field
-  if (output?.images?.[0]) {
-    const imgData = output.images[0];
-    // OpenRouter images can be a string (data URL) or an object with url
-    imageUrl = typeof imgData === 'string' ? imgData : (imgData.url || '');
+  // Format: { type: "image_url", image_url: { url: "data:..." } }
+  const images = output?.images;
+  if (images && images.length > 0) {
+    const imgData = images[0];
+    if (typeof imgData === 'string') {
+      imageUrl = imgData;
+    } else if (imgData.image_url?.url) {
+      imageUrl = imgData.image_url.url;
+    } else if (imgData.url) {
+      imageUrl = imgData.url;
+    }
+
     if (imageUrl && !imageUrl.startsWith('data:')) {
       imageUrl = `data:image/png;base64,${imageUrl}`;
     }
@@ -98,9 +106,17 @@ export const editRoomByChat = async (
   let imageUrl = '';
   let text = output?.content || '';
 
-  if (output?.images?.[0]) {
-    const imgData = output.images[0];
-    imageUrl = typeof imgData === 'string' ? imgData : (imgData.url || '');
+  const images = output?.images;
+  if (images && images.length > 0) {
+    const imgData = images[0];
+    if (typeof imgData === 'string') {
+      imageUrl = imgData;
+    } else if (imgData.image_url?.url) {
+      imageUrl = imgData.image_url.url;
+    } else if (imgData.url) {
+      imageUrl = imgData.url;
+    }
+
     if (imageUrl && !imageUrl.startsWith('data:')) {
       imageUrl = `data:image/png;base64,${imageUrl}`;
     }
@@ -112,9 +128,15 @@ export const editRoomByChat = async (
 export const getShoppingLinks = async (
   base64Image: string
 ): Promise<ProductRecommendation[]> => {
+  // SAFETY: If the previous step failed to generate an image, 
+  // don't send an empty URL to OpenRouter as it will return a 400.
+  if (!base64Image || base64Image.length < 100) {
+    console.warn("Skipping shopping links: Invalid or empty image provided.");
+    return [];
+  }
+
   const prompt = `Identify 3 key furniture or decor items in this design. For each item, find real-world products and their shopping URLs using Google Search. Focus on stores like IKEA, West Elm, Wayfair, or similar. Return the results as a strictly formatted JSON array of objects with keys: title, price, url, description.`;
 
-  // For shopping links, gemini-2.0-flash is faster and supports search better
   const response = await callOpenRouter("google/gemini-2.0-flash-001", [
     {
       role: "user",
